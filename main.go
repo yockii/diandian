@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/background/app"
 	"embed"
 	"log"
 
@@ -12,7 +13,7 @@ var assets embed.FS
 
 func main() {
 
-	app := application.New(application.Options{
+	a := application.New(application.Options{
 		Name:        "aipc",
 		Description: "A demo of using raw HTML & CSS",
 		Services: []application.Service{
@@ -26,30 +27,35 @@ func main() {
 		},
 	})
 
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:     "Window 1",
-		Frameless: true, // 无边框窗口
-		Mac: application.MacWindow{
-			InvisibleTitleBarHeight: 50,
-			Backdrop:                application.MacBackdropTranslucent,
-			TitleBar:                application.MacTitleBarHiddenInset,
-		},
-		BackgroundColour: application.NewRGB(27, 38, 54),
-		// URL:              "/",
-	})
+	app.Initialize(a)
+	err := app.DefaultManager.Run()
 
-	// go func() {
-	// 	for {
-	// 		now := time.Now().Format(time.RFC1123)
-	// 		app.Event.Emit("time", now)
-	// 		time.Sleep(time.Second)
-	// 	}
-	// }()
+	// app.Window.NewWithOptions(application.WebviewWindowOptions{
+	// 	Title:     "Window 1",
+	// 	Frameless: true, // 无边框窗口
+	// 	Width:     400,
+	// 	Height:    800,
+	// 	Mac: application.MacWindow{
+	// 		InvisibleTitleBarHeight: 50,
+	// 		Backdrop:                application.MacBackdropTranslucent,
+	// 		TitleBar:                application.MacTitleBarHiddenInset,
+	// 	},
+	// 	BackgroundColour: application.NewRGB(27, 38, 54),
+	// 	// URL:              "/",
+	// })
 
-	// Run the application. This blocks until the application has been exited.
-	err := app.Run()
+	// // go func() {
+	// // 	for {
+	// // 		now := time.Now().Format(time.RFC1123)
+	// // 		app.Event.Emit("time", now)
+	// // 		time.Sleep(time.Second)
+	// // 	}
+	// // }()
 
-	// If an error occurred while running the application, log it and exit.
+	// // Run the application. This blocks until the application has been exited.
+	// err := app.Run()
+
+	// // If an error occurred while running the application, log it and exit.
 	if err != nil {
 		log.Fatal(err)
 	}

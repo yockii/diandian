@@ -13,6 +13,7 @@
     "@fontsource/roboto": "^5.2.6",
     "@wailsio/runtime": "^3.0.0-alpha.66",
     "vue": "^3.2.45",
+    "vue-router": "^4.5.1",
     "vuetify": "^3.10.0"
   },
   "devDependencies": {
