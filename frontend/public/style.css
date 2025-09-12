@@ -1,0 +1,16 @@
+html {
+    height: 100%;
+    overflow-y: hidden !important;
+}
+body, #app {
+    height: 100%;
+    margin: 0;
+}
+
+.draggable {
+    --wails-draggable: drag; /* 启用拖拽 */
+}
+
+.window-control {
+    --wails-draggable: no-drag; /* 禁用拖拽 */
+}
