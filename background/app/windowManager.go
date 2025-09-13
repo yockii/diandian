@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 	"github.com/wailsapp/wails/v3/pkg/w32"
 )
 
@@ -42,36 +43,6 @@ func (wm *WindowManager) initializeMain() {
 	wm.winMap[WindowMain] = win
 }
 
-func (wm *WindowManager) judgeFloatingSticky() {
-	win, ok := wm.winMap[WindowFloating]
-	if ok {
-		rect := win.Bounds()
-		// 判断窗口是否靠近屏幕边缘
-		screenWidth := w32.GetSystemMetrics(w32.SM_CXSCREEN)
-		edgeThreshold := 40 // 靠近边缘的阈值，单位为像素
-
-		if rect.X <= edgeThreshold {
-			// 左侧
-			// rect.X = snapShow - rect.Width
-			win.SetPosition(snapShow-rect.Width, rect.Y)
-			wm.floatingStickySide = 1
-		} else if rect.X+rect.Width >= screenWidth-edgeThreshold {
-			// 右侧
-			// rect.X = screenWidth - snapShow
-			win.SetPosition(screenWidth-snapShow, rect.Y)
-			wm.floatingStickySide = 2
-		} else if rect.Y <= edgeThreshold {
-			// 上方
-			// rect.Y = snapShow - rect.Height
-			win.SetPosition(rect.X, snapShow-rect.Height)
-			wm.floatingStickySide = 3
-		} else {
-			win.SetPosition(rect.X, rect.Y)
-			wm.floatingStickySide = 0
-		}
-	}
-}
-
 func (wm *WindowManager) initializeFloating() {
 	win := wm.app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:          "Floating Window",
@@ -88,12 +59,25 @@ func (wm *WindowManager) initializeFloating() {
 		},
 	})
 
-	// win.RegisterHook(events.Common.WindowDidMove, func(event *application.WindowEvent) {
-	// 	if wm.mouseIn {
-	// 		return
-	// 	}
-	// 	wm.judgeFloatingSticky()
-	// })
+	win.RegisterHook(events.Common.WindowDidMove, func(event *application.WindowEvent) {
+		rect := win.Bounds()
+		// 判断窗口是否靠近屏幕边缘
+		screenWidth := w32.GetSystemMetrics(w32.SM_CXSCREEN)
+		edgeThreshold := 40 // 靠近边缘的阈值，单位为像素
+
+		if rect.X <= edgeThreshold {
+			// 左侧
+			wm.floatingStickySide = 1
+		} else if rect.X+rect.Width >= screenWidth-edgeThreshold {
+			// 右侧
+			wm.floatingStickySide = 2
+		} else if rect.Y <= edgeThreshold {
+			// 上方
+			wm.floatingStickySide = 3
+		} else {
+			wm.floatingStickySide = 0
+		}
+	})
 
 	// 鼠标进入时显示窗口，这里只能用前端传入的自定义事件完成
 	wm.app.Event.On("mouse-enter-floating", func(event *application.CustomEvent) {
@@ -125,9 +109,6 @@ func (wm *WindowManager) initializeFloating() {
 			rect := win.Bounds()
 			win.SetPosition(rect.X, 0-rect.Height+snapShow)
 		}
-
-		wm.judgeFloatingSticky()
-
 	})
 
 	wm.winMap[WindowFloating] = win
