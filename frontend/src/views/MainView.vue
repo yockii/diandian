@@ -4,10 +4,16 @@ import { NewTask } from '../../bindings/changeme/background/service/taskservice'
 import { onMounted, ref } from 'vue';
 
 const input = ref('')
+const loading = ref(false)
 
-const sendTask = () => {
-    NewTask(input.value)
-    input.value = ''
+const sendTask = async () => {
+    loading.value = true
+    try {
+        await NewTask(input.value)
+        input.value = ''
+    } finally {
+        loading.value = false
+    }
 }
 
 const taskSteps = ref<any[]>([])
@@ -33,13 +39,14 @@ onMounted(() => {
         <div class="flex-fill"></div>
         <div class="pa-2 no-dragable">
             <v-text-field
-                rounded
+                density="compact"
                 hide-details
                 variant="solo"
                 placeholder="有任务就点点，点点帮你做"
                 append-inner-icon="fa-regular fa-paper-plane"
                 @click:append-inner="sendTask"
                 v-model="input"
+                :loading="loading"
             ></v-text-field>
         </div>
     </div>

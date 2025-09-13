@@ -4,6 +4,10 @@ import "changeme/background/app"
 
 type WindowService struct{}
 
-func (w *WindowService) HideMainAndShowFloating() {
+func (s *WindowService) HideMainAndShowFloating() {
 	app.ShowFloating()
+}
+
+func (s *WindowService) ShowMainWindow() {
+	app.ShowMain()
 }

@@ -8,3 +8,7 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 export function HideMainAndShowFloating(): $CancellablePromise<void> {
     return $Call.ByID(4249623474);
 }
+
+export function ShowMainWindow(): $CancellablePromise<void> {
+    return $Call.ByID(2318204229);
+}
