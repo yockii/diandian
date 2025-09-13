@@ -1,16 +1,29 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
+import MainLayout from '../layout/main.vue'
 import MainView from '../views/MainView.vue'
+import FloatingView from '../views/FloatingView.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Main',
-    component: MainView
+    component: MainLayout,
+    children: [
+      {
+        path: '',
+        name: 'Main',
+        component: MainView
+      }
+    ]
+  },
+  {
+    path: '/floating',
+    name: 'Floating',
+    component: FloatingView
   }
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 })
 

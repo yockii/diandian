@@ -2,6 +2,7 @@ package main
 
 import (
 	"changeme/background/app"
+	"changeme/background/service"
 	"embed"
 	"log"
 
@@ -18,6 +19,8 @@ func main() {
 		Description: "A demo of using raw HTML & CSS",
 		Services: []application.Service{
 			application.NewService(&GreetService{}),
+			application.NewService(&service.WindowService{}),
+			application.NewService(&service.TaskService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -28,7 +31,7 @@ func main() {
 	})
 
 	app.Initialize(a)
-	err := app.DefaultManager.Run()
+	err := app.Run()
 
 	// app.Window.NewWithOptions(application.WebviewWindowOptions{
 	// 	Title:     "Window 1",

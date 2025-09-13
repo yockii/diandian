@@ -11,6 +11,6 @@ body, #app {
     --wails-draggable: drag; /* 启用拖拽 */
 }
 
-.window-control {
+.no-dragable {
     --wails-draggable: no-drag; /* 禁用拖拽 */
 }
