@@ -2,6 +2,7 @@
 import { Events } from '@wailsio/runtime';
 import { NewTask } from '../../bindings/changeme/background/service/taskservice';
 import { onMounted, ref } from 'vue';
+import WelcomeCard from '../components/WelcomeCard.vue';
 
 const input = ref('')
 const loading = ref(false)
@@ -16,11 +17,11 @@ const sendTask = async () => {
     }
 }
 
-const taskSteps = ref<any[]>([])
+const messages = ref<any[]>([])
 
 onMounted(() => {
     Events.On("new-step", ({data}) => {
-        taskSteps.value.push(data)
+        messages.value.push(data)
     })
 })
 </script>
@@ -28,12 +29,15 @@ onMounted(() => {
 <template>
     <div class="d-flex flex-column" style="height: 100%">
         <div class="text-h5 text-center mb-2">点点小助理</div>
-        <v-divider >
+        <v-divider class="mx-2">
             <div class="text-body-2 text-center">历史任务已收起</div>
         </v-divider>
-        <div>
-            <div v-for="step in taskSteps">
-                {{ step }}
+        <div v-if="messages.length === 0" class="pa-4">
+            <welcome-card @ask-selected="input = $event"/>
+        </div>
+        <div v-else>
+            <div v-for="message in messages">
+                {{ message }}
             </div>
         </div>
         <div class="flex-fill"></div>
@@ -42,7 +46,7 @@ onMounted(() => {
                 density="compact"
                 hide-details
                 variant="solo"
-                placeholder="有任务就点点，点点帮你做"
+                placeholder="说点什么，让点点来帮你……"
                 append-inner-icon="fa-regular fa-paper-plane"
                 @click:append-inner="sendTask"
                 v-model="input"

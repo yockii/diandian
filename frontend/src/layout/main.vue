@@ -17,7 +17,9 @@ const close = async () => {
     <v-main>
       <router-view></router-view>
     </v-main>
-    <v-footer color="indigo-lighten-1" height="16">ccc</v-footer>
+    <v-footer color="indigo-lighten-1" height="18">
+      <div class="text-caption text-center" style="width: 100%;">点点虽小，能动乾坤</div>
+    </v-footer>
   </v-app>
 </template>
 
