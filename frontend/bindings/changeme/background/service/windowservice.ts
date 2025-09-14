@@ -9,6 +9,18 @@ export function HideMainAndShowFloating(): $CancellablePromise<void> {
     return $Call.ByID(4249623474);
 }
 
+export function HideSettings(): $CancellablePromise<void> {
+    return $Call.ByID(696274188);
+}
+
+export function IsInitializeSuccess(): $CancellablePromise<boolean> {
+    return $Call.ByID(1262216098);
+}
+
 export function ShowMainWindow(): $CancellablePromise<void> {
     return $Call.ByID(2318204229);
+}
+
+export function ShowSettings(): $CancellablePromise<void> {
+    return $Call.ByID(3694025789);
 }

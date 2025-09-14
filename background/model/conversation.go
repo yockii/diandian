@@ -1,13 +1,13 @@
 package model
 
 type Conversation struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	Base
+	Name string `json:"name" gorm:"size:200"`
 }
 
 type Message struct {
-	ID             uint   `json:"id"`
-	ConversationID uint   `json:"conversation_id"`
-	Role           string `json:"role"` // user, assistant
+	Base
+	ConversationID uint64 `json:"conversation_id" gorm:"index"`
+	Role           string `json:"role" gorm:"size:50"` // user, assistant
 	Content        string `json:"content"`
 }

@@ -1,6 +1,9 @@
 package app
 
 import (
+	"changeme/background/database"
+	"changeme/background/util"
+
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 	"github.com/wailsapp/wails/v3/pkg/w32"
@@ -14,6 +17,8 @@ type WindowManager struct {
 	app                *application.App
 	winMap             map[string]*application.WebviewWindow
 	floatingStickySide int // 浮动窗口贴边位置：0-无贴边，1-左，2-右，3-上
+
+	initializeSuccess bool // 初始化是否成功
 }
 
 func (wm *WindowManager) Run() error {
@@ -23,7 +28,7 @@ func (wm *WindowManager) Run() error {
 
 func (wm *WindowManager) initializeMain() {
 	win := wm.app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:     "Main Window",
+		Title:     "点点小助理",
 		Frameless: true, // 无边框窗口
 		Width:     400,
 		Height:    800,
@@ -45,7 +50,7 @@ func (wm *WindowManager) initializeMain() {
 
 func (wm *WindowManager) initializeFloating() {
 	win := wm.app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:          "Floating Window",
+		Title:          "点点飘啊飘",
 		Frameless:      true, // 无边框窗口
 		Width:          80,
 		Height:         80,
@@ -114,6 +119,28 @@ func (wm *WindowManager) initializeFloating() {
 	wm.winMap[WindowFloating] = win
 }
 
+func (wm *WindowManager) initializeSettings() {
+	win := wm.app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title:     "点点配置项",
+		Frameless: true, // 无边框窗口
+		Width:     600,
+		Height:    500,
+		Mac: application.MacWindow{
+			InvisibleTitleBarHeight: 50,
+			Backdrop:                application.MacBackdropTranslucent,
+			TitleBar:                application.MacTitleBarHiddenInset,
+		},
+		BackgroundColour: application.NewRGB(27, 38, 54),
+		URL:              "/settings",
+		DisableResize:    true,
+		Windows:          application.WindowsWindow{
+			// 	ExStyle: w32.WS_EX_TOOLWINDOW,
+		},
+	})
+
+	wm.winMap[WindowSettings] = win
+}
+
 func (wm *WindowManager) GetWindow(name string) *application.WebviewWindow {
 	switch name {
 	case WindowMain:
@@ -128,7 +155,7 @@ func (wm *WindowManager) GetWindow(name string) *application.WebviewWindow {
 		return wm.winMap[WindowFloating]
 	case WindowSettings:
 		if _, ok := wm.winMap[name]; !ok {
-			// wm.initializeSettings()
+			wm.initializeSettings()
 		}
 		return wm.winMap[WindowSettings]
 	default:
@@ -144,6 +171,19 @@ func (wm *WindowManager) ShowFloating() {
 func (wm *WindowManager) ShowMain() {
 	wm.GetWindow(WindowFloating).Hide()
 	wm.GetWindow(WindowMain).Show()
+}
+
+func (wm *WindowManager) ShowSettings() {
+	settingsWindow := wm.GetWindow(WindowSettings)
+	if settingsWindow.IsVisible() {
+		settingsWindow.Focus()
+		return
+	}
+	settingsWindow.Show()
+}
+
+func (wm *WindowManager) HideSettings() {
+	wm.GetWindow(WindowSettings).Hide()
 }
 
 // 右键菜单
@@ -167,4 +207,19 @@ func (wm *WindowManager) EmitEvent(name string, data any) {
 		Name: name,
 		Data: data,
 	})
+}
+
+// 程序启动时调用
+func (wm *WindowManager) OnAppStart() {
+	if err := util.InitializeSnowflake(); err != nil {
+		return
+	}
+	if err := database.Initialize(); err != nil {
+		return
+	}
+	wm.initializeSuccess = true
+}
+
+func (wm *WindowManager) IsInitializeSuccess() bool {
+	return wm.initializeSuccess
 }

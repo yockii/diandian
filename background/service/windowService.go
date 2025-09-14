@@ -11,3 +11,15 @@ func (s *WindowService) HideMainAndShowFloating() {
 func (s *WindowService) ShowMainWindow() {
 	app.ShowMain()
 }
+
+func (s *WindowService) IsInitializeSuccess() bool {
+	return app.IsInitializeSuccess()
+}
+
+func (s *WindowService) ShowSettings() {
+	app.ShowSettings()
+}
+
+func (s *WindowService) HideSettings() {
+	app.HideSettings()
+}

@@ -1,6 +1,8 @@
 package app
 
-import "github.com/wailsapp/wails/v3/pkg/application"
+import (
+	"github.com/wailsapp/wails/v3/pkg/application"
+)
 
 const (
 	WindowMain     = "main"
@@ -12,9 +14,17 @@ var DefaultManager = &WindowManager{
 	winMap: make(map[string]*application.WebviewWindow),
 }
 
+func OnAppStart() {
+	DefaultManager.OnAppStart()
+}
+
 func Initialize(app *application.App) {
 	DefaultManager.app = app
 	DefaultManager.buildContextMenu()
+}
+
+func IsInitializeSuccess() bool {
+	return DefaultManager.IsInitializeSuccess()
 }
 
 func Run() error {
@@ -27,6 +37,14 @@ func ShowFloating() {
 
 func ShowMain() {
 	DefaultManager.ShowMain()
+}
+
+func ShowSettings() {
+	DefaultManager.ShowSettings()
+}
+
+func HideSettings() {
+	DefaultManager.HideSettings()
 }
 
 func EmitEvent(name string, data any) {

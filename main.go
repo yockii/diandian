@@ -3,16 +3,20 @@ package main
 import (
 	"changeme/background/app"
 	"changeme/background/service"
+	"changeme/background/util"
 	"embed"
 	"log"
+	"log/slog"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
 func main() {
+	util.InitializeLog()
 
 	a := application.New(application.Options{
 		Name:        "aipc",
@@ -21,6 +25,7 @@ func main() {
 			application.NewService(&GreetService{}),
 			application.NewService(&service.WindowService{}),
 			application.NewService(&service.TaskService{}),
+			application.NewService(&service.SettingService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -30,7 +35,16 @@ func main() {
 		},
 	})
 
+	a.Event.OnApplicationEvent(events.Common.ApplicationStarted, func(event *application.ApplicationEvent) {
+		slog.Info("程序启动中...")
+		app.OnAppStart()
+		service.InitializeData()
+	})
+
 	app.Initialize(a)
+
+	slog.Info("程序初始化完成，运行中...")
+
 	err := app.Run()
 
 	// app.Window.NewWithOptions(application.WebviewWindowOptions{
