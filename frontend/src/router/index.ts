@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoadingView from '@/views/LoadingView.vue'
 import MainLayout from '@/layout/MainLayout.vue'
 import MainView from '@/views/MainView.vue'
+import FloatingView from '@/views/FloatingView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -39,6 +40,11 @@ const router = createRouter({
         }
       ],
     },
+    {
+      path: '/floating',
+      name: 'Floating',
+      component: FloatingView,
+    }
   ],
 })
 

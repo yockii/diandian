@@ -52,7 +52,7 @@ onMounted(() => {
         你还没有配置好点点的工作环境😢
       </div>
       <div class="text-sm mt-3">
-        请点击前往👉<span class="text-bold cursor-pointer" @click="openSettings">设置</span>👈界面，配置好大模型访问Token、基础URL以及对应模型后，点点才能智商上线噢❣️
+        请点击前往👉<span class="text-lg font-bold cursor-pointer" @click="openSettings">设置</span>👈界面，配置好大模型访问Token、基础URL以及对应模型后，点点才能智商上线噢❣️
       </div>
     </template>
   </el-card>

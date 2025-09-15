@@ -30,7 +30,7 @@ func (s *SettingService) SaveSetting(setting *model.Setting) (err error) {
 	switch currentSetting.Key {
 	case model.SettingKeyTheme:
 		app.EmitEvent(constant.EventThemeChanged, currentSetting.Value)
-	case model.SettingKeyLlmBaseUrl, model.SettingKeyLlmToken, model.SettingKeyVlModel:
+	case model.SettingKeyLlmBaseUrl, model.SettingKeyLlmToken, model.SettingKeyVlModel, model.SettingKeyTextModel:
 		canWork, _ := s.CanWork()
 		app.EmitEvent(constant.EventCanWorkChanged, canWork)
 	}
@@ -52,13 +52,14 @@ func (s *SettingService) CanWork() (bool, error) {
 		model.SettingKeyLlmBaseUrl,
 		model.SettingKeyLlmToken,
 		model.SettingKeyVlModel,
+		model.SettingKeyTextModel,
 	}).Find(&settings).Error
 
 	if err != nil {
 		return false, err
 	}
 
-	if len(settings) < 3 {
+	if len(settings) < 4 {
 		return false, nil
 	}
 
