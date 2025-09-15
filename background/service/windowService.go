@@ -23,3 +23,7 @@ func (s *WindowService) ShowSettings() {
 func (s *WindowService) HideSettings() {
 	app.HideSettings()
 }
+
+func (s *WindowService) FloatingStickySide() int {
+	return app.FloatingStickySide()
+}

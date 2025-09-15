@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	snapShow = 10 // 窗口贴边显示出来的像素
+	snapShow = 15 // 窗口贴边显示出来的像素
 )
 
 type WindowManager struct {
@@ -222,4 +222,8 @@ func (wm *WindowManager) OnAppStart() {
 
 func (wm *WindowManager) IsInitializeSuccess() bool {
 	return wm.initializeSuccess
+}
+
+func (wm *WindowManager) FloatingStickySide() int {
+	return wm.floatingStickySide
 }

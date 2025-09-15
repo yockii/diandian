@@ -50,3 +50,7 @@ func HideSettings() {
 func EmitEvent(name string, data any) {
 	DefaultManager.EmitEvent(name, data)
 }
+
+func FloatingStickySide() int {
+	return DefaultManager.FloatingStickySide()
+}

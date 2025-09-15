@@ -5,6 +5,10 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
+export function FloatingStickySide(): $CancellablePromise<number> {
+    return $Call.ByID(2509722683);
+}
+
 export function HideMainAndShowFloating(): $CancellablePromise<void> {
     return $Call.ByID(4249623474);
 }
