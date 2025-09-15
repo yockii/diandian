@@ -18,4 +18,9 @@ const (
 	SettingKeyTheme     = "theme"      // 主题，值为light/dark/auto
 	SettingKeyAutoStart = "auto_start" // 是否开机自启，值为true或false
 	SettingKeyLanguage  = "language"   // 语言，值为auto/zh-CN/en-US
+
+	SettingKeyTextModel  = "text_model"   // 文本模型，值为gpt-3.5-turbo/gpt-4等
+	SettingKeyVlModel    = "vl_model"     // 多模态模型，值为gpt-4-vision-preview等
+	SettingKeyLlmToken   = "llm_token"    // LLM访问Token
+	SettingKeyLlmBaseUrl = "llm_base_url" // LLM访问基础URL
 )

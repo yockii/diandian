@@ -5,8 +5,41 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class Message {
+    "id": `${number}`;
+    "created_at"?: number;
+    "updated_at"?: number;
+    "conversation_id"?: `${number}`;
+
+    /**
+     * user, assistant
+     */
+    "role"?: string;
+    "content": string;
+
+    /** Creates a new Message instance. */
+    constructor($$source: Partial<Message> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "0";
+        }
+        if (!("content" in $$source)) {
+            this["content"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Message instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Message {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Message($$parsedSource as Partial<Message>);
+    }
+}
+
 export class Setting {
-    "id": number;
+    "id": `${number}`;
     "created_at"?: number;
     "updated_at"?: number;
     "key"?: string;
@@ -39,7 +72,7 @@ export class Setting {
     /** Creates a new Setting instance. */
     constructor($$source: Partial<Setting> = {}) {
         if (!("id" in $$source)) {
-            this["id"] = 0;
+            this["id"] = "0";
         }
 
         Object.assign(this, $$source);

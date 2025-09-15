@@ -7,7 +7,7 @@ import (
 )
 
 type Base struct {
-	ID        uint64 `json:"id" gorm:"primaryKey;autoIncrement:false"`
+	ID        uint64 `json:"id,string" gorm:"primaryKey;autoIncrement:false"`
 	CreatedAt int64  `json:"created_at,omitempty" gorm:"autoCreateTime:milli"`
 	UpdatedAt int64  `json:"updated_at,omitempty" gorm:"autoUpdateTime:milli"`
 }

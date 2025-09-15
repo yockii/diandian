@@ -24,7 +24,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(&GreetService{}),
 			application.NewService(&service.WindowService{}),
-			application.NewService(&service.TaskService{}),
+			application.NewService(&service.MessageService{}),
 			application.NewService(&service.SettingService{}),
 		},
 		Assets: application.AssetOptions{

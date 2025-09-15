@@ -1,53 +1,45 @@
-import { createWebHistory, createRouter } from 'vue-router'
-import LoadingView from '../views/LoadingView.vue'
-import MainLayout from '../layout/main.vue'
-import MainView from '../views/MainView.vue'
-import FloatingView from '../views/FloatingView.vue'
-import SettingView from '../views/SettingView.vue'
-
-const routes = [
-  {
-    path: '/',
-    component: MainLayout,
-    children: [
-      {
-        path: '/',
-        name: 'Loading',
-        component: LoadingView,
-        meta: {
-          bgClass: 'app-background',
-          showSettings: false,
-        }
-      },
-      {
-        path: '/main',
-        name: 'Main',
-        component: MainView,
-        meta: {
-          bgClass: 'app-background',
-          showSettings: true,
-        }
-      },
-      {
-        path: '/settings',
-        name: 'Settings',
-        component: SettingView,
-        meta: {
-          showSettings: false,
-        }
-      }
-    ]
-  },
-  {
-    path: '/floating',
-    name: 'Floating',
-    component: FloatingView
-  }
-]
+import { createRouter, createWebHistory } from 'vue-router'
+import LoadingView from '@/views/LoadingView.vue'
+import MainLayout from '@/layout/MainLayout.vue'
+import MainView from '@/views/MainView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes: [
+    {
+      path: '/',
+      component: MainLayout,
+      children: [
+        {
+          path: '/',
+          name: 'loading',
+          component: LoadingView,
+          meta: {
+            bgClass: 'app-background',
+            showSettings: false,
+          },
+        },
+        {
+          path: '/main',
+          name: 'Main',
+          component: MainView,
+          meta: {
+            bgClass: 'app-background',
+            showSettings: true,
+          },
+        },
+        {
+          path: '/settings',
+          name: 'Settings',
+          component: () => import('@/views/SettingView.vue'),
+          meta: {
+            bgClass: 'app-background',
+            showSettings: false,
+          },
+        }
+      ],
+    },
+  ],
 })
 
 export default router

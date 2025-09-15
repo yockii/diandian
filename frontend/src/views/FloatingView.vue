@@ -15,7 +15,7 @@ const showMainWindow = () => {
 
 <template>
     <div class="draggable container" @mouseenter="mouseenter" @mouseleave="mouseleave" @dblclick="showMainWindow">
-        <v-img src="../../public/floating.png" contain height="100%" width="100%"></v-img>
+        <el-image src="../../public/floating.png" fit="contain" style="height: 100%; width: 100%;"></el-image>
     </div>
 </template>
 

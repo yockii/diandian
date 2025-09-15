@@ -5,6 +5,10 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
-export function NewTask(msg: string): $CancellablePromise<void> {
-    return $Call.ByID(3064533479, msg);
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as model$0 from "../model/models.js";
+
+export function NewMessage(msg: model$0.Message | null): $CancellablePromise<void> {
+    return $Call.ByID(1850800211, msg);
 }

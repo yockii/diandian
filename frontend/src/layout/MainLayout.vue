@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { WindowService, SettingService } from '../../bindings/changeme/background/service'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
-import { useTheme } from 'vuetify'
 import { Events } from '@wailsio/runtime'
+import { useDark, usePreferredDark } from '@vueuse/core'
+import { Cog6ToothIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 const route = useRoute()
 const showSettings = ref(true)
 const bgClass = ref<string>('')
-const settedTheme = ref<'light' | 'dark' | 'system'>('light')
-const theme = useTheme()
 
 route.meta.background = 'transparent'
 
@@ -32,46 +31,58 @@ onBeforeRouteUpdate((to, from, next) => {
   next()
 })
 
+// 主题处理
+const preferredDark = usePreferredDark()
+const isDark = useDark({
+  selector: 'html',
+  attribute: 'class',
+  valueDark: 'dark',
+  valueLight: '',
+  storageKey: 'user-theme-mode',
+})
+const currentTheme = ref<string>('auto')
+
+const applyTheme = (mode:string) => {
+  currentTheme.value = mode
+  if (mode === 'auto') {
+    isDark.value = preferredDark.value
+  } else {
+    isDark.value = mode === 'dark'
+  }
+}
+
+watch(preferredDark, (newVal) => {
+  if (currentTheme.value === 'auto') {
+    isDark.value = newVal
+  }
+})
+
+
 onMounted(async () => {
   const metaBgCls = route.meta.bgClass || ''
   bgClass.value = typeof metaBgCls === 'string' ? metaBgCls : ''
-  
+
   showSettings.value = route.meta.showSettings === true
 
   const themeSetting = await SettingService.GetThemeSetting()
   if (themeSetting) {
-    switch (themeSetting.value) {
-      case 'light':
-        settedTheme.value = 'light'
-        break
-      case 'dark':
-        settedTheme.value = 'dark'
-        break
-      default:
-        settedTheme.value = 'system'
-    }
+    applyTheme(themeSetting.value)
   }
 
-  console.log('当前主题：', theme.name.value)
+  console.log('当前主题：', isDark.value ? 'dark' : 'light')
 
-  Events.On('theme-change', ({data}) => {
-    console.log('收到主题变更事件：', data)
-    switch (data) {
-      case 'light':
-        settedTheme.value = 'light'
-        break
-      case 'dark':
-        settedTheme.value = 'dark'
-        break
-      default:
-        settedTheme.value = 'system'
-    }
+  Events.On('theme_changed', ({data}) => {
+    applyTheme(data)
   })
+})
+
+onUnmounted(() => {
+  Events.OffAll()
 })
 </script>
 
 <template>
-  <v-app :theme="settedTheme" class="draggable" :class="[bgClass, theme.name.value]">
+  <el-container class="draggable h-full" :class="[bgClass, isDark ? 'dark' : 'light']">
     <template v-if="bgClass === 'app-background'">
       <div class="particle"></div>
       <div class="particle"></div>
@@ -82,28 +93,34 @@ onMounted(async () => {
       <div class="particle"></div>
       <div class="particle"></div>
     </template>
-    <v-app-bar elevation="0" height="32" color="rgba(0,0,0,0)" dense flat>
-      <template v-slot:prepend>
-        <v-btn v-if="showSettings" variant="plain" size="x-small" @click="openSettings">
-          <v-icon icon="fas fa-cog"></v-icon>
-        </v-btn>
-      </template>
-      <template v-slot:append>
-        <v-btn variant="plain" size="x-small" @click="close">
-          <v-icon icon="fas fa-xmark"></v-icon>
-        </v-btn>
-      </template>
-    </v-app-bar>
-    <v-main>
+    <el-header height="32px">
+      <div class="flex justify-between">
+        <div class="-ml-5">
+          <el-button v-if="showSettings" link @click="openSettings">
+            <el-icon size="24">
+              <Cog6ToothIcon />
+            </el-icon>
+          </el-button>
+        </div>
+        <div class="-mr-5">
+          <el-button link @click="close">
+            <el-icon size="24">
+              <XMarkIcon />
+            </el-icon>
+          </el-button>
+        </div>
+      </div>
+    </el-header>
+    <el-main class="z-10">
       <router-view></router-view>
-    </v-main>
-    <v-footer color="rgba(0,0,0,0)" height="18">
-      <div class="text-caption text-center" style="width: 100%;">点点虽小，能动乾坤</div>
-    </v-footer>
-  </v-app>
+    </el-main>
+    <el-footer height="18px">
+      <div class="text-xs text-center">点点虽小，能动乾坤</div>
+    </el-footer>
+  </el-container>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .v-footer {
   flex: 0;
 }

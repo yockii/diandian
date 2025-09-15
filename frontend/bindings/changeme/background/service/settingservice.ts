@@ -15,6 +15,10 @@ export function AllSettings(): $CancellablePromise<(model$0.Setting | null)[]> {
     });
 }
 
+export function CanWork(): $CancellablePromise<boolean> {
+    return $Call.ByID(2260545940);
+}
+
 export function GetThemeSetting(): $CancellablePromise<model$0.Setting | null> {
     return $Call.ByID(1045061840).then(($result: any) => {
         return $$createType1($result);

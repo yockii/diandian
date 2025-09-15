@@ -1,27 +1,11 @@
 import { createApp } from 'vue'
-import "@wailsio/runtime"
-// Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { aliases, fa } from 'vuetify/iconsets/fa'
 import App from './App.vue'
 import router from './router'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import './style.css'
 
-import '@fortawesome/fontawesome-free/css/all.css'
-import 'unfonts.css'
+const app = createApp(App)
 
-const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: 'fa',
-    aliases,
-    sets: {
-      fa,
-    },
-  }
-})
+app.use(router)
 
-createApp(App).use(vuetify).use(router).mount('#app')
+app.mount('#app')

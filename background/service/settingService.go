@@ -2,6 +2,7 @@ package service
 
 import (
 	"changeme/background/app"
+	"changeme/background/constant"
 	"changeme/background/database"
 	"changeme/background/model"
 )
@@ -14,7 +15,7 @@ func (s *SettingService) AllSettings() (list []*model.Setting, err error) {
 }
 
 func (s *SettingService) SaveSetting(setting *model.Setting) (err error) {
-	err = database.DB.Save(setting).Error
+	err = database.DB.Select("value").Save(setting).Error
 	if err != nil {
 		return
 	}
@@ -28,7 +29,10 @@ func (s *SettingService) SaveSetting(setting *model.Setting) (err error) {
 	// 触发相应事件
 	switch currentSetting.Key {
 	case model.SettingKeyTheme:
-		app.EmitEvent("theme-change", currentSetting.Value)
+		app.EmitEvent(constant.EventThemeChanged, currentSetting.Value)
+	case model.SettingKeyLlmBaseUrl, model.SettingKeyLlmToken, model.SettingKeyVlModel:
+		canWork, _ := s.CanWork()
+		app.EmitEvent(constant.EventCanWorkChanged, canWork)
 	}
 	return
 }
@@ -40,4 +44,29 @@ func (s *SettingService) GetThemeSetting() (*model.Setting, error) {
 		return nil, err
 	}
 	return &setting, nil
+}
+
+func (s *SettingService) CanWork() (bool, error) {
+	var settings []*model.Setting
+	err := database.DB.Where("key IN ?", []string{
+		model.SettingKeyLlmBaseUrl,
+		model.SettingKeyLlmToken,
+		model.SettingKeyVlModel,
+	}).Find(&settings).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	if len(settings) < 3 {
+		return false, nil
+	}
+
+	for _, setting := range settings {
+		if setting.Value == nil || *setting.Value == "" {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
