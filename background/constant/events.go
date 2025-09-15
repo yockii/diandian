@@ -1,6 +1,9 @@
 package constant
 
 const (
-	EventThemeChanged   = "theme_changed"
-	EventCanWorkChanged = "can_work_changed"
+	EventThemeChanged       = "theme-changed"
+	EventCanWorkChanged     = "can-work-changed"
+	EventStickySideChanged  = "sticky-side-changed"
+	EventMouseEnterFloating = "mouse-enter-floating"
+	EventMouseLeaveFloating = "mouse-leave-floating"
 )

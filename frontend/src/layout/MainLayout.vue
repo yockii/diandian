@@ -5,6 +5,7 @@ import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { Events } from '@wailsio/runtime'
 import { useDark, usePreferredDark } from '@vueuse/core'
 import { Cog6ToothIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { EVENT_NAMES } from '@/constants/events'
 
 const route = useRoute()
 const showSettings = ref(true)
@@ -66,12 +67,12 @@ onMounted(async () => {
 
   const themeSetting = await SettingService.GetThemeSetting()
   if (themeSetting) {
-    applyTheme(themeSetting.value)
+    applyTheme(themeSetting.value || '')
   }
 
   console.log('当前主题：', isDark.value ? 'dark' : 'light')
 
-  Events.On('theme_changed', ({data}) => {
+  Events.On(EVENT_NAMES.THEME_CHANGED, ({data}) => {
     applyTheme(data)
   })
 })

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"changeme/background/constant"
 	"changeme/background/database"
 	"changeme/background/util"
 
@@ -68,24 +69,33 @@ func (wm *WindowManager) initializeFloating() {
 		rect := win.Bounds()
 		// 判断窗口是否靠近屏幕边缘
 		screenWidth := w32.GetSystemMetrics(w32.SM_CXSCREEN)
-		edgeThreshold := 40 // 靠近边缘的阈值，单位为像素
+		screenHeight := w32.GetSystemMetrics(w32.SM_CYSCREEN)
 
-		if rect.X <= edgeThreshold {
+		oldStickySide := wm.floatingStickySide
+		if rect.X <= 0 {
 			// 左侧
 			wm.floatingStickySide = 1
-		} else if rect.X+rect.Width >= screenWidth-edgeThreshold {
+		} else if rect.X+rect.Width >= screenWidth {
 			// 右侧
 			wm.floatingStickySide = 2
-		} else if rect.Y <= edgeThreshold {
+		} else if rect.Y <= 0 {
 			// 上方
 			wm.floatingStickySide = 3
+		} else if rect.Y+rect.Height >= screenHeight {
+			// 下方（新增）
+			wm.floatingStickySide = 4
 		} else {
 			wm.floatingStickySide = 0
+		}
+
+		// 如果贴边状态发生变化，发送事件通知前端更新
+		if oldStickySide != wm.floatingStickySide {
+			wm.EmitEvent(constant.EventStickySideChanged, wm.floatingStickySide)
 		}
 	})
 
 	// 鼠标进入时显示窗口，这里只能用前端传入的自定义事件完成
-	wm.app.Event.On("mouse-enter-floating", func(event *application.CustomEvent) {
+	wm.app.Event.On(constant.EventMouseEnterFloating, func(event *application.CustomEvent) {
 		switch wm.floatingStickySide {
 		case 1:
 			rect := win.Bounds()
@@ -97,11 +107,15 @@ func (wm *WindowManager) initializeFloating() {
 		case 3:
 			rect := win.Bounds()
 			win.SetPosition(rect.X, 0)
+		case 4:
+			rect := win.Bounds()
+			screenHeight := w32.GetSystemMetrics(w32.SM_CYSCREEN)
+			win.SetPosition(rect.X, screenHeight-rect.Height)
 		}
 	})
 
 	// 鼠标离开时隐藏窗口
-	wm.app.Event.On("mouse-leave-floating", func(event *application.CustomEvent) {
+	wm.app.Event.On(constant.EventMouseLeaveFloating, func(event *application.CustomEvent) {
 		switch wm.floatingStickySide {
 		case 1:
 			rect := win.Bounds()
@@ -113,6 +127,10 @@ func (wm *WindowManager) initializeFloating() {
 		case 3:
 			rect := win.Bounds()
 			win.SetPosition(rect.X, 0-rect.Height+snapShow)
+		case 4:
+			rect := win.Bounds()
+			screenHeight := w32.GetSystemMetrics(w32.SM_CYSCREEN)
+			win.SetPosition(rect.X, screenHeight-snapShow)
 		}
 	})
 

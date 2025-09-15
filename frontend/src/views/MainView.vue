@@ -8,6 +8,7 @@ import DianDivider from '@/components/DianDivider.vue';
 // import { PaperAirplaneIcon } from '@heroicons/vue/24/outline';
 import { Bubble, MentionSender } from 'vue-element-plus-x';
 import { SettingService } from '../../bindings/changeme/background/service';
+import { EVENT_NAMES } from '@/constants/events';
 
 const input = ref('')
 const loading = ref(false)
@@ -44,7 +45,7 @@ onMounted(() => {
   judgeCanWork()
 
 
-  Events.On('can_work_changed', ({ data }) => {
+  Events.On(EVENT_NAMES.CAN_WORK_CHANGED, ({ data }) => {
     canWork.value = data
   })
 
