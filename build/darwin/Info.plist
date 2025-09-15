@@ -6,9 +6,9 @@
         <key>CFBundleName</key>
             <string>My Product</string>
         <key>CFBundleExecutable</key>
-            <string>aipc.exe</string>
+            <string>Diandian.exe</string>
         <key>CFBundleIdentifier</key>
-            <string>com.wails.aipc</string>
+            <string>com.wails.diandian</string>
         <key>CFBundleVersion</key>
             <string>0.1.0</string>
         <key>CFBundleGetInfoString</key>

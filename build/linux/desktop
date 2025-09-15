@@ -3,11 +3,11 @@ Version=1.0
 Name=My Product
 Comment=My Product Description
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/aipc.exe %u
+Exec=/usr/local/bin/Diandian.exe %u
 Terminal=false
 Type=Application
-Icon=aipc.exe
+Icon=Diandian.exe
 Categories=Utility;
-StartupWMClass=aipc.exe
+StartupWMClass=Diandian.exe
 
  

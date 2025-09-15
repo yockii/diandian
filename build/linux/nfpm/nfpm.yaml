@@ -3,7 +3,7 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "aipc.exe"
+name: "Diandian.exe"
 arch: ${GOARCH}
 platform: "linux"
 version: "0.1.0"
@@ -17,12 +17,12 @@ license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/aipc.exe"
-    dst: "/usr/local/bin/aipc.exe"
+  - src: "./bin/Diandian.exe"
+    dst: "/usr/local/bin/Diandian.exe"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/aipc.exe.png"
-  - src: "./build/linux/aipc.exe.desktop"
-    dst: "/usr/share/applications/aipc.exe.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/Diandian.exe.png"
+  - src: "./build/linux/Diandian.exe.desktop"
+    dst: "/usr/share/applications/Diandian.exe.desktop"
 
 # Default dependencies for Debian 12/Ubuntu 22.04+ with WebKit 4.1
 depends:

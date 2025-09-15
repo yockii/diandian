@@ -19,10 +19,9 @@ func main() {
 	util.InitializeLog()
 
 	a := application.New(application.Options{
-		Name:        "aipc",
-		Description: "A demo of using raw HTML & CSS",
+		Name:        "DianDian",
+		Description: "点点小助理，AI聊天，自动操作电脑",
 		Services: []application.Service{
-			application.NewService(&GreetService{}),
 			application.NewService(&service.WindowService{}),
 			application.NewService(&service.MessageService{}),
 			application.NewService(&service.SettingService{}),
