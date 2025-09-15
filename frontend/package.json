@@ -33,6 +33,7 @@
     "jiti": "^2.4.2",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.6.2",
+    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.13",
     "typescript": "~5.8.0",
     "unplugin-auto-import": "^20.1.0",

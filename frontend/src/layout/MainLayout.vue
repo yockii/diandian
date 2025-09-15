@@ -82,7 +82,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-container class="draggable h-full" :class="[bgClass, isDark ? 'dark' : 'light']">
+  <el-container class="draggable h-full" :class="[
+    bgClass,
+    isDark ? 'dark' : 'light',
+    isDark ? 'scrollbar-thumb-scroll-thumb-dark scrollbar-track-scroll-track-dark' : 'scrollbar-thumb-scroll-thumb scrollbar-track-scroll-track'
+    ]">
     <template v-if="bgClass === 'app-background'">
       <div class="particle"></div>
       <div class="particle"></div>

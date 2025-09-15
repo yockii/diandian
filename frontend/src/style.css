@@ -1,4 +1,12 @@
 @import 'tailwindcss';
+@plugin 'tailwind-scrollbar';
+
+@theme {
+  --color-scroll-thumb-dark: #4b5563; /* Tailwind Gray 600 */
+  --color-scroll-track-dark: #1f2937; /* Tailwind Gray 800 */
+  --color-scroll-thumb: #9ca3af; /* Tailwind Gray 400 */
+  --color-scroll-track: #f3f4f6; /* Tailwind Gray 100 */
+}
 
 html,
 body,

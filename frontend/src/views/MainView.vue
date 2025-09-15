@@ -63,7 +63,7 @@ onMounted(() => {
       <div class="text-xs text-center bg-transparent">历史任务已收起</div>
     </dian-divider>
 
-    <div class="flex-1 overflow-y-auto my-4">
+    <div class="flex-1 overflow-y-scroll my-4 scrollbar-thin">
       <div v-if="messages.length === 0" class="p-2 items-center justify-center flex h-full">
         <welcome-card @ask-selected="input = $event" :can-work="canWork"/>
       </div>
