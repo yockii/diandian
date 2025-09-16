@@ -3,5 +3,6 @@
 
 export {
     Message,
-    Setting
+    Setting,
+    Task
 } from "./models.js";

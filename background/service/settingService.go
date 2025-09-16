@@ -1,10 +1,10 @@
 package service
 
 import (
-	"changeme/background/app"
-	"changeme/background/constant"
-	"changeme/background/database"
-	"changeme/background/model"
+	"diandian/background/app"
+	"diandian/background/constant"
+	"diandian/background/database"
+	"diandian/background/model"
 )
 
 type SettingService struct{}

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"changeme/background/model"
+	"diandian/background/model"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"

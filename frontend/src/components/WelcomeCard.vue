@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { WindowService } from '../../bindings/changeme/background/service';
+import { WindowService } from '../../bindings/diandian/background/service';
 
 defineProps<{
   canWork: boolean

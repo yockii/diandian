@@ -11,3 +11,8 @@ type Message struct {
 	Role           string `json:"role,omitempty" gorm:"size:50"` // user, assistant
 	Content        string `json:"content"`
 }
+
+const (
+	MessageRoleUser      = "user"
+	MessageRoleAssistant = "assistant"
+)

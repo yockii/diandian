@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import mascot from '@/assets/mascot.png'
-import { WindowService } from '../../bindings/changeme/background/service'
+import { WindowService } from '../../bindings/diandian/background/service'
 import { useRouter } from 'vue-router'
 
 const title = ref('点点正在启动中...')

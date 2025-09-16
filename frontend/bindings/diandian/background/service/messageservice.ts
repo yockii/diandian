@@ -9,6 +9,16 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as model$0 from "../model/models.js";
 
+/**
+ * 确认执行自动化任务
+ */
+export function ConfirmAutomationTask(t: model$0.Task | null, confirmed: boolean): $CancellablePromise<void> {
+    return $Call.ByID(2394226322, t, confirmed);
+}
+
+/**
+ * 处理新消息
+ */
 export function NewMessage(msg: model$0.Message | null): $CancellablePromise<void> {
-    return $Call.ByID(1850800211, msg);
+    return $Call.ByID(3872484185, msg);
 }

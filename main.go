@@ -1,9 +1,9 @@
 package main
 
 import (
-	"changeme/background/app"
-	"changeme/background/service"
-	"changeme/background/util"
+	"diandian/background/app"
+	"diandian/background/service"
+	"diandian/background/util"
 	"embed"
 	"log"
 	"log/slog"
@@ -25,6 +25,7 @@ func main() {
 			application.NewService(&service.WindowService{}),
 			application.NewService(&service.MessageService{}),
 			application.NewService(&service.SettingService{}),
+			// application.NewService(&service.LLMService{}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

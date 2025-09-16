@@ -1,6 +1,6 @@
 package service
 
-import "changeme/background/app"
+import "diandian/background/app"
 
 type WindowService struct{}
 

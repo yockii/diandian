@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Setting } from '../../bindings/changeme/background/model/models';
-import { SettingService } from '../../bindings/changeme/background/service';
+import { Setting } from '../../bindings/diandian/background/model/models';
+import { SettingService } from '../../bindings/diandian/background/service';
 
 defineProps({
   settingList: {

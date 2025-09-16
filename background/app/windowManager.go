@@ -1,9 +1,9 @@
 package app
 
 import (
-	"changeme/background/constant"
-	"changeme/background/database"
-	"changeme/background/util"
+	"diandian/background/constant"
+	"diandian/background/database"
+	"diandian/background/util"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"

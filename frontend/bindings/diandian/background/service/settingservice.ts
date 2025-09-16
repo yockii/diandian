@@ -10,23 +10,23 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 import * as model$0 from "../model/models.js";
 
 export function AllSettings(): $CancellablePromise<(model$0.Setting | null)[]> {
-    return $Call.ByID(2401459293).then(($result: any) => {
+    return $Call.ByID(3595887451).then(($result: any) => {
         return $$createType2($result);
     });
 }
 
 export function CanWork(): $CancellablePromise<boolean> {
-    return $Call.ByID(2260545940);
+    return $Call.ByID(1075064858);
 }
 
 export function GetThemeSetting(): $CancellablePromise<model$0.Setting | null> {
-    return $Call.ByID(1045061840).then(($result: any) => {
+    return $Call.ByID(919430558).then(($result: any) => {
         return $$createType1($result);
     });
 }
 
 export function SaveSetting(setting: model$0.Setting | null): $CancellablePromise<void> {
-    return $Call.ByID(108101384, setting);
+    return $Call.ByID(2761623378, setting);
 }
 
 // Private type creation functions

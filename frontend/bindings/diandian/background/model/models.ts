@@ -86,3 +86,67 @@ export class Setting {
         return new Setting($$parsedSource as Partial<Setting>);
     }
 }
+
+export class Task {
+    "id": `${number}`;
+    "created_at"?: number;
+    "updated_at"?: number;
+    "conversation_id"?: `${number}`;
+    "name": string;
+    "description": string;
+
+    /**
+     * pending, running, completed, failed, cancelled
+     */
+    "status": string;
+
+    /**
+     * 0-100
+     */
+    "progress": number;
+
+    /**
+     * 任务执行结果
+     */
+    "result": string;
+
+    /**
+     * 错误信息
+     */
+    "error_msg": string;
+
+    /** Creates a new Task instance. */
+    constructor($$source: Partial<Task> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "0";
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("description" in $$source)) {
+            this["description"] = "";
+        }
+        if (!("status" in $$source)) {
+            this["status"] = "";
+        }
+        if (!("progress" in $$source)) {
+            this["progress"] = 0;
+        }
+        if (!("result" in $$source)) {
+            this["result"] = "";
+        }
+        if (!("error_msg" in $$source)) {
+            this["error_msg"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Task instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Task {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Task($$parsedSource as Partial<Task>);
+    }
+}

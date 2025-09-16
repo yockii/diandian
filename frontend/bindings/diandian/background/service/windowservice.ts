@@ -6,25 +6,25 @@
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
 export function FloatingStickySide(): $CancellablePromise<number> {
-    return $Call.ByID(2509722683);
+    return $Call.ByID(3966789445);
 }
 
 export function HideMainAndShowFloating(): $CancellablePromise<void> {
-    return $Call.ByID(4249623474);
+    return $Call.ByID(4149804132);
 }
 
 export function HideSettings(): $CancellablePromise<void> {
-    return $Call.ByID(696274188);
+    return $Call.ByID(1241998358);
 }
 
 export function IsInitializeSuccess(): $CancellablePromise<boolean> {
-    return $Call.ByID(1262216098);
+    return $Call.ByID(1440561984);
 }
 
 export function ShowMainWindow(): $CancellablePromise<void> {
-    return $Call.ByID(2318204229);
+    return $Call.ByID(1290021111);
 }
 
 export function ShowSettings(): $CancellablePromise<void> {
-    return $Call.ByID(3694025789);
+    return $Call.ByID(1393607803);
 }

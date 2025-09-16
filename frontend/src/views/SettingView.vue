@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { SettingService } from '../../bindings/changeme/background/service';
-import { Setting } from '../../bindings/changeme/background/model/models';
+import { SettingService } from '../../bindings/diandian/background/service';
+import { Setting } from '../../bindings/diandian/background/model/models';
 import SettingGroup from '../components/SettingGroup.vue';
 import DianDivider from '@/components/DianDivider.vue';
 

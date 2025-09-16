@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { WindowService, SettingService } from '../../bindings/changeme/background/service'
+import { WindowService, SettingService } from '../../bindings/diandian/background/service'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { Events } from '@wailsio/runtime'
 import { useDark, usePreferredDark } from '@vueuse/core'

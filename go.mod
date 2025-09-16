@@ -1,4 +1,4 @@
-module changeme
+module diandian
 
 go 1.24.0
 
@@ -6,6 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/glebarez/sqlite v1.11.0
+	github.com/sashabaranov/go-openai v1.41.2
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.28
 	github.com/yockii/snowflake_ext v0.1.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1

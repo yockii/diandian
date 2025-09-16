@@ -1,10 +1,10 @@
 package service
 
 import (
-	"changeme/background/app"
-	"changeme/background/database"
-	"changeme/background/model"
-	"changeme/background/util"
+	"diandian/background/app"
+	"diandian/background/database"
+	"diandian/background/model"
+	"diandian/background/util"
 )
 
 func InitializeData() {

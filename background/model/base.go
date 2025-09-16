@@ -1,7 +1,7 @@
 package model
 
 import (
-	"changeme/background/util"
+	"diandian/background/util"
 
 	"gorm.io/gorm"
 )

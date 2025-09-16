@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Events } from '@wailsio/runtime'
-import { WindowService } from '../../bindings/changeme/background/service'
+import { WindowService } from '../../bindings/diandian/background/service'
 import Mascot from '@/assets/mascot.png'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { EVENT_NAMES } from '@/constants/events'; 
+import { EVENT_NAMES } from '@/constants/events';
 
 const imageRef = ref<any>(null)
 let animationInterval: number | null = null
@@ -54,7 +54,7 @@ const updateStickySide = (sideValue: number) => {
             stickySide.value = 'bottom'
             break
         default:
-            stickySide.value = '' 
+            stickySide.value = ''
     }
 }
 
@@ -68,11 +68,11 @@ const animations = ['bounce', 'wobble', 'jiggle', 'squish']
 // 更新旋转角度
 const updateRotation = (side: string) => {
     if (!imageRef.value || !imageRef.value.$el) return
-    
+
     const el = imageRef.value.$el
     // 移除之前的旋转类
     el.classList.remove('rotate-left', 'rotate-right', 'rotate-top', 'rotate-bottom', 'rotate-none')
-    
+
     // 根据贴边方向添加相应的旋转类
     switch(side) {
         case 'left':
@@ -97,7 +97,7 @@ const playRandomAnimation = () => {
     if (stickySide.value && !isMouseInWindow.value) {
         return
     }
-    
+
     if (!imageRef.value) return
     const el = imageRef.value.$el
     if (!el) return
@@ -119,7 +119,7 @@ onMounted(async () => {
     // 初始化时检查贴边状态
     const r = await WindowService.FloatingStickySide()
     updateStickySide(r)
-    
+
     // 如果有贴边状态，设置旋转
     if (stickySide.value) {
         updateRotation(stickySide.value)
@@ -133,7 +133,7 @@ onMounted(async () => {
             updateRotation(stickySide.value)
         }
     })
-    
+
     // 每隔 5-15 秒随机播放一次动画
     const startAnimation = () => {
         const delay = Math.random() * 10000 + 5000
