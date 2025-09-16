@@ -28,10 +28,10 @@ const settingChanged = async (v: string, setting: Setting) => {
         <div class="text-sm mb-1 font-medium">{{ setting?.name }}</div>
         <div class="no-draggable">
           <el-select v-if="setting?.setting_type === 'select'" :label="setting?.name" :options="JSON.parse(setting?.options || '[]')" v-model="setting.value"
-            @change="(v) => settingChanged(v, setting)" />
-          <el-input v-else-if="setting?.setting_type === 'input'" :label="setting?.name" v-model="setting.value" @change="(v) => settingChanged(v, setting)" />
-          <el-input v-else-if="setting?.setting_type === 'password'" :label="setting?.name" v-model="setting.value" show-password @change="(v) => settingChanged(v, setting)" />
-          <el-switch v-else-if="setting?.setting_type === 'switch'" :label="setting?.name" v-model="setting.value" @change="(v) => settingChanged(v ? 'true' : 'false', setting)" />
+            @change="(v:any) => settingChanged(v, setting)" />
+          <el-input v-else-if="setting?.setting_type === 'input'" :label="setting?.name" v-model="setting.value" @change="(v:any) => settingChanged(v, setting)" />
+          <el-input v-else-if="setting?.setting_type === 'password'" :label="setting?.name" v-model="setting.value" show-password @change="(v:any) => settingChanged(v, setting)" />
+          <el-switch v-else-if="setting?.setting_type === 'switch'" :label="setting?.name" v-model="setting.value" @change="(v:any) => settingChanged(v ? 'true' : 'false', setting)" />
         </div>
       </el-col>
     </template>
