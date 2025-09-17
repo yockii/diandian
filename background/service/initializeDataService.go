@@ -58,50 +58,70 @@ func InitializeData() {
 	}).FirstOrCreate(&model.Setting{})
 
 	database.DB.Model(&model.Setting{}).Where(&model.Setting{
-		Key: model.SettingKeyLlmBaseUrl,
+		Key: model.SettingKeyLlmTextBaseUrl,
 	}).Assign(&model.Setting{
-		GroupName:   "大模型",
+		GroupName:   "文本大模型",
 		Name:        "Base URL",
 		Desc:        "访问大模型的基础URL",
 		OrderNum:    1,
 		Showable:    util.BoolPtr(true),
 		SettingType: "input",
-		Cols:        24,
+		Cols:        16,
 	}).FirstOrCreate(&model.Setting{})
-
 	database.DB.Model(&model.Setting{}).Where(&model.Setting{
-		Key: model.SettingKeyLlmToken,
+		Key: model.SettingKeyLlmTextModel,
 	}).Assign(&model.Setting{
-		GroupName:   "大模型",
+		GroupName:   "文本大模型",
+		Name:        "模型ID",
+		Desc:        "要使用的文本生成模型(为空则使用视觉模型完成任务)",
+		OrderNum:    3,
+		Showable:    util.BoolPtr(true),
+		SettingType: "input",
+		Cols:        8,
+	}).FirstOrCreate(&model.Setting{})
+	database.DB.Model(&model.Setting{}).Where(&model.Setting{
+		Key: model.SettingKeyLlmTextToken,
+	}).Assign(&model.Setting{
+		GroupName:   "文本大模型",
 		Name:        "Token",
 		Desc:        "访问大模型API的Token",
-		OrderNum:    2,
+		OrderNum:    3,
 		Showable:    util.BoolPtr(true),
 		SettingType: "password",
 		Cols:        24,
 	}).FirstOrCreate(&model.Setting{})
 
 	database.DB.Model(&model.Setting{}).Where(&model.Setting{
-		Key: model.SettingKeyTextModel,
+		Key: model.SettingKeyLlmVlBaseUrl,
 	}).Assign(&model.Setting{
-		GroupName:   "大模型",
-		Name:        "文本模型",
-		Desc:        "要使用的文本生成模型(为空则使用视觉模型完成任务)",
-		OrderNum:    3,
+		GroupName:   "视觉大模型",
+		Name:        "Base URL",
+		Desc:        "访问大模型的基础URL",
+		OrderNum:    1,
 		Showable:    util.BoolPtr(true),
 		SettingType: "input",
-		Cols:        12,
+		Cols:        16,
 	}).FirstOrCreate(&model.Setting{})
-
 	database.DB.Model(&model.Setting{}).Where(&model.Setting{
-		Key: model.SettingKeyVlModel,
+		Key: model.SettingKeyLlmVlModel,
 	}).Assign(&model.Setting{
-		GroupName:   "大模型",
-		Name:        "视觉模型",
+		GroupName:   "视觉大模型",
+		Name:        "模型ID",
 		Desc:        "要使用的视觉生成模型",
 		OrderNum:    4,
 		Showable:    util.BoolPtr(true),
 		SettingType: "input",
-		Cols:        12,
+		Cols:        8,
+	}).FirstOrCreate(&model.Setting{})
+	database.DB.Model(&model.Setting{}).Where(&model.Setting{
+		Key: model.SettingKeyLlmVlToken,
+	}).Assign(&model.Setting{
+		GroupName:   "视觉大模型",
+		Name:        "Token",
+		Desc:        "访问大模型API的Token",
+		OrderNum:    5,
+		Showable:    util.BoolPtr(true),
+		SettingType: "password",
+		Cols:        24,
 	}).FirstOrCreate(&model.Setting{})
 }

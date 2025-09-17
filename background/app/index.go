@@ -54,3 +54,7 @@ func EmitEvent(name string, data any) {
 func FloatingStickySide() int {
 	return DefaultManager.FloatingStickySide()
 }
+
+func GetApp() *application.App {
+	return DefaultManager.app
+}

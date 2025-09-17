@@ -100,14 +100,14 @@ onUnmounted(() => {
     </template>
     <el-header height="32px">
       <div class="flex justify-between">
-        <div class="-ml-5">
+        <div class="-ml-5 no-draggable">
           <el-button v-if="showSettings" link @click="openSettings">
             <el-icon size="24">
               <Cog6ToothIcon />
             </el-icon>
           </el-button>
         </div>
-        <div class="-mr-5">
+        <div class="-mr-5 no-draggable">
           <el-button link @click="close">
             <el-icon size="24">
               <XMarkIcon />

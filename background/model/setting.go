@@ -19,8 +19,10 @@ const (
 	SettingKeyAutoStart = "auto_start" // 是否开机自启，值为true或false
 	SettingKeyLanguage  = "language"   // 语言，值为auto/zh-CN/en-US
 
-	SettingKeyTextModel  = "text_model"   // 文本模型，值为gpt-3.5-turbo/gpt-4等
-	SettingKeyVlModel    = "vl_model"     // 多模态模型，值为gpt-4-vision-preview等
-	SettingKeyLlmToken   = "llm_token"    // LLM访问Token
-	SettingKeyLlmBaseUrl = "llm_base_url" // LLM访问基础URL
+	SettingKeyLlmTextModel   = "llm_text_model"    // 文本模型，值为gpt-3.5-turbo/gpt-4等
+	SettingKeyLlmTextToken   = "llm_text_token"    // LLM访问Token
+	SettingKeyLlmTextBaseUrl = "llm_text_base_url" // LLM访问基础URL
+	SettingKeyLlmVlModel     = "llm_vl_model"      // 多模态模型，值为gpt-4-vision-preview等
+	SettingKeyLlmVlToken     = "llm_vl_token"
+	SettingKeyLlmVlBaseUrl   = "llm_vl_base_url"
 )

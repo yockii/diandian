@@ -1,14 +1,17 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
 	"diandian/background/app"
 	"diandian/background/constant"
 	"diandian/background/database"
+	"diandian/background/domain"
 	"diandian/background/model"
 
+	"github.com/sashabaranov/go-openai"
 	"gorm.io/gorm"
 )
 
@@ -222,6 +225,62 @@ func (s *MessageService) runAutomationTask(task *model.Task, analysis *Automatio
 	s.updateTaskStatus(task, model.TaskStatusCompleted, "任务执行完成")
 }
 
+// 执行新的自动化任务（使用任务分解结果）
+func (s *MessageService) executeAutomationTaskNew(task *model.Task, decomposition *domain.AutomationTaskDecomposition) {
+	app.EmitEvent(constant.EventNotify, "任务开始执行...")
+
+	// 更新任务状态
+	task.Status = model.TaskStatusRunning
+	task.Progress = 70
+	database.DB.Save(task)
+	s.sendTaskUpdate(task)
+
+	// 启动增强任务执行（异步）
+	go s.runAutomationTaskEnhanced(task, decomposition)
+}
+
+// 执行新的自动化任务（使用增强的执行引擎）
+func (s *MessageService) executeAutomationTaskEnhanced(task *model.Task, decomposition *domain.AutomationTaskDecomposition) {
+	app.EmitEvent(constant.EventNotify, "增强任务开始执行...")
+
+	// 更新任务状态
+	task.Status = model.TaskStatusRunning
+	task.Progress = 70
+	database.DB.Save(task)
+	s.sendTaskUpdate(task)
+
+	// 启动增强任务执行（异步）
+	go s.runAutomationTaskEnhanced(task, decomposition)
+}
+
+// 运行增强的自动化任务（后台执行）
+func (s *MessageService) runAutomationTaskEnhanced(task *model.Task, decomposition *domain.AutomationTaskDecomposition) {
+	// 创建自动化服务
+	automationService := NewAutomationService(app.GetApp())
+	err := automationService.Initialize()
+	if err != nil {
+		slog.Error("初始化自动化服务失败", "error", err)
+		s.updateTaskStatus(task, model.TaskStatusFailed, "初始化自动化服务失败")
+		return
+	}
+	defer automationService.Cleanup()
+
+	// 创建增强的任务执行引擎
+	enhancedEngine := NewEnhancedTaskExecutionEngine(automationService)
+
+	// 执行任务
+	ctx := context.Background()
+	result := enhancedEngine.ExecuteTaskDecomposition(ctx, uint(task.ID), decomposition)
+
+	if result.Success {
+		s.updateTaskStatus(task, model.TaskStatusCompleted, "增强任务执行完成")
+		app.EmitEvent(constant.EventNotify, "✅ 增强自动化任务执行完成")
+	} else {
+		s.updateTaskStatus(task, model.TaskStatusFailed, fmt.Sprintf("增强任务执行失败: %s", result.Error))
+		app.EmitEvent(constant.EventNotify, fmt.Sprintf("❌ 增强任务执行失败: %s", result.Error))
+	}
+}
+
 // 发送执行状态更新（发送到浮动窗口）
 // func (s *MessageService) sendExecutionUpdate(message string) {
 // 	app.EmitEvent("automation-execution-update", map[string]interface{}{
@@ -241,12 +300,22 @@ func (s *MessageService) ConfirmAutomationTask(t *model.Task, confirmed bool) er
 	if confirmed {
 		// 重新分析任务（从数据库获取原始内容）
 		llmService := &LLMService{}
-		taskAnalysis, err := llmService.AnalyzeAutomationTask(task.Description)
+
+		// 构建对话历史
+		var conversationHistory []openai.ChatCompletionMessage
+		// TODO: 从数据库获取对话历史
+
+		conversationHistory = append(conversationHistory, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: task.Description,
+		})
+
+		taskDecomposition, err := llmService.DecomposeAutomationTask(conversationHistory)
 		if err != nil {
 			s.updateTaskStatus(&task, model.TaskStatusFailed, "重新分析任务失败")
 			return err
 		}
-		s.executeAutomationTask(&task, taskAnalysis)
+		s.executeAutomationTaskEnhanced(&task, taskDecomposition)
 	} else {
 		s.updateTaskStatus(&task, model.TaskStatusCancelled, "用户取消执行")
 	}

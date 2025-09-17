@@ -30,7 +30,7 @@ func (s *SettingService) SaveSetting(setting *model.Setting) (err error) {
 	switch currentSetting.Key {
 	case model.SettingKeyTheme:
 		app.EmitEvent(constant.EventThemeChanged, currentSetting.Value)
-	case model.SettingKeyLlmBaseUrl, model.SettingKeyLlmToken, model.SettingKeyVlModel, model.SettingKeyTextModel:
+	case model.SettingKeyLlmTextBaseUrl, model.SettingKeyLlmTextToken, model.SettingKeyLlmVlModel, model.SettingKeyLlmTextModel:
 		canWork, _ := s.CanWork()
 		app.EmitEvent(constant.EventCanWorkChanged, canWork)
 	}
@@ -49,10 +49,10 @@ func (s *SettingService) GetThemeSetting() (*model.Setting, error) {
 func (s *SettingService) CanWork() (bool, error) {
 	var settings []*model.Setting
 	err := database.DB.Where("key IN ?", []string{
-		model.SettingKeyLlmBaseUrl,
-		model.SettingKeyLlmToken,
-		model.SettingKeyVlModel,
-		model.SettingKeyTextModel,
+		model.SettingKeyLlmTextBaseUrl,
+		model.SettingKeyLlmTextToken,
+		model.SettingKeyLlmVlModel,
+		model.SettingKeyLlmTextModel,
 	}).Find(&settings).Error
 
 	if err != nil {
