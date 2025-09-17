@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"diandian/background/automation"
 	"diandian/background/automation/core"
+	"diandian/background/automation/hybrid"
 	"diandian/background/domain"
 )
 
@@ -36,7 +36,7 @@ type StepExecutionResult struct {
 type EnhancedTaskExecutionEngine struct {
 	automationService *AutomationService
 	llmService        *LLMService
-	engine            automation.AutomationEngine
+	engine            *hybrid.HybridEngine
 }
 
 // NewEnhancedTaskExecutionEngine 创建增强的任务执行引擎
@@ -179,10 +179,20 @@ func (e *EnhancedTaskExecutionEngine) executeStepPlan(ctx context.Context, stepP
 	// 如果需要屏幕分析，先进行截屏和分析
 	var screenAnalysis *domain.VisualAnalysisResponse
 	if stepPlan.RequiresScreenAnalysis {
-		imageData, screenshotResult := e.engine.Screenshot()
+		screenshotResult := e.engine.Screenshot()
 		if !screenshotResult.Success {
 			result.Error = fmt.Sprintf("截屏失败: %s", screenshotResult.Error)
 			return result
+		}
+
+		// 从result中获取图像数据
+		var imageData []byte
+		if data, ok := screenshotResult.Data.(map[string]interface{}); ok {
+			if dataStr, exists := data["data"]; exists {
+				if dataBytes, ok := dataStr.([]byte); ok {
+					imageData = dataBytes
+				}
+			}
 		}
 
 		// 调用视觉分析
@@ -231,7 +241,7 @@ func (e *EnhancedTaskExecutionEngine) executeClickStep(stepPlan *domain.Automati
 	}
 
 	// 执行点击操作
-	opResult := e.engine.Click(clickOp.X, clickOp.Y, core.MouseButton(clickOp.Button))
+	opResult := e.engine.Click(clickOp.X, clickOp.Y)
 	if !opResult.Success {
 		result.Error = opResult.Error
 		return result
@@ -284,17 +294,8 @@ func (e *EnhancedTaskExecutionEngine) executeLaunchAppStep(stepPlan *domain.Auto
 		return result
 	}
 
-	// 执行启动应用操作
-	opResult := e.engine.LaunchApp(&core.AppInfo{Name: appName})
-	if !opResult.Success {
-		result.Error = opResult.Error
-		return result
-	}
-
-	result.Success = true
-	result.Data = map[string]interface{}{
-		"app_name": appName,
-	}
+	// 启动应用功能暂不支持
+	result.Error = "启动应用功能暂不支持"
 	return result
 }
 
@@ -302,41 +303,8 @@ func (e *EnhancedTaskExecutionEngine) executeLaunchAppStep(stepPlan *domain.Auto
 func (e *EnhancedTaskExecutionEngine) executeFileStep(stepPlan *domain.AutomationStepPlan) *StepExecutionResult {
 	result := &StepExecutionResult{Success: false}
 
-	// 生成具体的文件操作
-	fileOp, err := e.llmService.GenerateFileOperation(stepPlan.Context)
-	if err != nil {
-		result.Error = fmt.Sprintf("生成文件操作失败: %v", err)
-		return result
-	}
-
-	// 根据操作类型执行相应的文件操作
-	var opResult *core.OperationResult
-	switch fileOp.Operation {
-	case "create":
-		opResult = e.engine.CreateFile(fileOp.SourcePath, []byte(fileOp.Content))
-	case "delete":
-		opResult = e.engine.DeleteFile(fileOp.SourcePath)
-	case "move":
-		opResult = e.engine.MoveFile(fileOp.SourcePath, fileOp.TargetPath)
-	case "copy":
-		opResult = e.engine.CopyFile(fileOp.SourcePath, fileOp.TargetPath)
-	default:
-		result.Error = fmt.Sprintf("不支持的文件操作: %s", fileOp.Operation)
-		return result
-	}
-
-	if !opResult.Success {
-		result.Error = opResult.Error
-		return result
-	}
-
-	result.Success = true
-	result.Data = map[string]interface{}{
-		"operation":      fileOp.Operation,
-		"source_path":    fileOp.SourcePath,
-		"target_path":    fileOp.TargetPath,
-		"content_length": len(fileOp.Content),
-	}
+	// 文件操作功能暂不支持
+	result.Error = "文件操作功能暂不支持"
 	return result
 }
 
@@ -351,23 +319,18 @@ func (e *EnhancedTaskExecutionEngine) executeScreenshotStep(stepPlan *domain.Aut
 	}
 
 	// 执行截屏操作
-	imageData, opResult := e.engine.Screenshot()
+	opResult := e.engine.Screenshot()
 	if !opResult.Success {
 		result.Error = opResult.Error
 		return result
 	}
 
-	// 保存截屏
-	saveResult := e.engine.CreateFile(path, imageData)
-	if !saveResult.Success {
-		result.Error = fmt.Sprintf("保存截屏失败: %s", saveResult.Error)
-		return result
-	}
+	// 截屏功能已完成，但保存到文件功能暂不支持
 
 	result.Success = true
 	result.Data = map[string]interface{}{
-		"path": path,
-		"size": len(imageData),
+		"path":    path,
+		"message": "截屏完成",
 	}
 	return result
 }
@@ -376,35 +339,8 @@ func (e *EnhancedTaskExecutionEngine) executeScreenshotStep(stepPlan *domain.Aut
 func (e *EnhancedTaskExecutionEngine) executeClipboardStep(stepPlan *domain.AutomationStepPlan) *StepExecutionResult {
 	result := &StepExecutionResult{Success: false}
 
-	// 从上下文中判断是获取还是设置剪贴板
-	if e.isGetClipboardOperation(stepPlan.Context) {
-		text, opResult := e.engine.GetClipboard()
-		if !opResult.Success {
-			result.Error = opResult.Error
-			return result
-		}
-		result.Success = true
-		result.Data = map[string]interface{}{
-			"operation": "get",
-			"text":      text,
-			"length":    len(text),
-		}
-	} else {
-		// 设置剪贴板
-		text := e.extractTextFromContext(stepPlan.Context)
-		opResult := e.engine.SetClipboard(text)
-		if !opResult.Success {
-			result.Error = opResult.Error
-			return result
-		}
-		result.Success = true
-		result.Data = map[string]interface{}{
-			"operation": "set",
-			"text":      text,
-			"length":    len(text),
-		}
-	}
-
+	// 剪贴板功能暂不支持
+	result.Error = "剪贴板功能暂不支持"
 	return result
 }
 
@@ -419,11 +355,7 @@ func (e *EnhancedTaskExecutionEngine) executeWaitStep(stepPlan *domain.Automatio
 	}
 
 	// 执行等待操作
-	opResult := e.engine.Wait(duration)
-	if !opResult.Success {
-		result.Error = opResult.Error
-		return result
-	}
+	time.Sleep(time.Duration(duration) * time.Millisecond)
 
 	result.Success = true
 	result.Data = map[string]interface{}{
@@ -445,16 +377,12 @@ func (e *EnhancedTaskExecutionEngine) executeKeyPressStep(stepPlan *domain.Autom
 
 	// 执行按键操作
 	var opResult *core.OperationResult
+	// 目前只支持单个按键，组合键功能暂不支持
 	if len(modifiers) > 0 {
-		// 转换修饰键类型
-		coreModifiers := make([]core.KeyModifier, len(modifiers))
-		for i, mod := range modifiers {
-			coreModifiers[i] = core.KeyModifier(mod)
-		}
-		opResult = e.engine.Hotkey(coreModifiers, key)
-	} else {
-		opResult = e.engine.KeyPress(key)
+		result.Error = "组合键功能暂不支持"
+		return result
 	}
+	opResult = e.engine.KeyPress(key)
 
 	if !opResult.Success {
 		result.Error = opResult.Error

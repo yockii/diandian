@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"diandian/background/app"
 	"diandian/background/constant"
@@ -46,8 +47,21 @@ func (s *MessageService) processMessageAsync(msg *model.Message) {
 	assistantMsg, response, err := DefaultLLMService.ProcessMessage(msg.ConversationID)
 
 	if err != nil {
-		slog.Error("处理用户消息失败", "error", err)
-		s.sendErrorMessage("系统错误，请稍后重试")
+		slog.Error("处理用户消息失败", "error", err, "conversation_id", msg.ConversationID, "message_content", msg.Content)
+
+		// 根据错误类型提供更具体的错误信息
+		var errorMsg string
+		if strings.Contains(err.Error(), "API") {
+			errorMsg = "AI服务暂时不可用，请稍后重试"
+		} else if strings.Contains(err.Error(), "解析") {
+			errorMsg = "AI响应格式异常，请重新发送消息"
+		} else if strings.Contains(err.Error(), "网络") || strings.Contains(err.Error(), "timeout") {
+			errorMsg = "网络连接异常，请检查网络后重试"
+		} else {
+			errorMsg = "系统错误，请稍后重试"
+		}
+
+		s.sendErrorMessage(errorMsg)
 		return
 	}
 
@@ -127,65 +141,12 @@ func (s *MessageService) sendErrorMessage(content string) {
 	})
 }
 
-// // 发送任务分析结果
-// func (s *MessageService) sendTaskAnalysis(analysis *AutomationTaskResponse) {
-// 	message := fmt.Sprintf(`📋 **任务分析结果**
-//
-// **任务名称**: %s
-// **描述**: %s
-// **复杂度**: %s
-//
-// **执行步骤**:
-// `, analysis.TaskName, analysis.Description, analysis.Complexity)
-//
-// 	for i, step := range analysis.Steps {
-// 		message += fmt.Sprintf("%d. %s\n", i+1, step)
-// 	}
-//
-// 	if len(analysis.Risks) > 0 {
-// 		message += "\n⚠️ **风险提示**:\n"
-// 		for _, risk := range analysis.Risks {
-// 			message += fmt.Sprintf("• %s\n", risk)
-// 		}
-// 	}
-//
-// 	// s.sendMessage(message)
-// }
-//
-// 发送确认请求
-// func (s *MessageService) sendConfirmationRequest(task *model.Task, analysis *AutomationTaskResponse) {
-// 	// 更新任务状态为等待确认
-// 	task.Status = "waiting_confirm"
-// 	task.Progress = 80
-// 	database.DB.Save(task)
-// 	s.sendTaskUpdate(task)
-//
-// 	// 发送确认消息
-// 	confirmMessage := `🔐 **需要您的确认**
-//
-// 此任务涉及重要操作，需要您的明确授权才能继续执行。
-// 确认后，任务将自动执行，无需进一步干预。
-//
-// ⚠️ **重要提示**：
-// • 确认后界面将切换到浮动模式
-// • 任务将在后台自动执行
-// • 执行过程中请勿手动操作电脑
-// • 您可以随时通过浮动窗口监控进度
-//
-// 请仔细检查任务详情后点击确认：`
-//
-// 	s.sendMessage(confirmMessage)
-//
-// 	// 发送确认按钮事件
-// 	app.EmitEvent("automation-confirm-request", map[string]interface{}{
-// 		"task_id":  task.ID,
-// 		"analysis": analysis,
-// 	})
-// }
-
 // 执行自动化任务
 func (s *MessageService) executeAutomationTask(task *model.Task, analysis *AutomationTaskResponse) {
 	app.EmitEvent(constant.EventNotify, "任务开始执行...")
+
+	// 发送任务执行开始事件，触发窗口切换
+	app.EmitEvent(constant.EventTaskExecutionStarted, task)
 
 	// 更新任务状态
 	task.Status = model.TaskStatusRunning
@@ -199,18 +160,8 @@ func (s *MessageService) executeAutomationTask(task *model.Task, analysis *Autom
 
 // 运行自动化任务（后台执行）
 func (s *MessageService) runAutomationTask(task *model.Task, analysis *AutomationTaskResponse) {
-	// 发送执行状态更新
-	// s.sendExecutionUpdate("🔍 正在分析屏幕...")
-
-	// TODO: 这里将来会调用自动化任务执行引擎
-	// 目前先模拟执行过程
-
-	// 模拟执行步骤
+	// 模拟执行过程
 	for i, step := range analysis.Steps {
-		// s.sendExecutionUpdate(fmt.Sprintf("⚡ 执行步骤 %d/%d: %s", i+1, len(analysis.Steps), step))
-
-		// 模拟执行时间
-		// time.Sleep(2 * time.Second)
 		slog.Debug("执行步骤", "step", step)
 
 		// 更新进度
@@ -221,27 +172,18 @@ func (s *MessageService) runAutomationTask(task *model.Task, analysis *Automatio
 	}
 
 	// 完成任务
-	// s.sendExecutionUpdate("✅ 自动化任务执行完成")
 	s.updateTaskStatus(task, model.TaskStatusCompleted, "任务执行完成")
-}
 
-// 执行新的自动化任务（使用任务分解结果）
-func (s *MessageService) executeAutomationTaskNew(task *model.Task, decomposition *domain.AutomationTaskDecomposition) {
-	app.EmitEvent(constant.EventNotify, "任务开始执行...")
-
-	// 更新任务状态
-	task.Status = model.TaskStatusRunning
-	task.Progress = 70
-	database.DB.Save(task)
-	s.sendTaskUpdate(task)
-
-	// 启动增强任务执行（异步）
-	go s.runAutomationTaskEnhanced(task, decomposition)
+	// 发送任务执行完成事件，触发窗口恢复
+	app.EmitEvent(constant.EventTaskExecutionCompleted, task)
 }
 
 // 执行新的自动化任务（使用增强的执行引擎）
 func (s *MessageService) executeAutomationTaskEnhanced(task *model.Task, decomposition *domain.AutomationTaskDecomposition) {
 	app.EmitEvent(constant.EventNotify, "增强任务开始执行...")
+
+	// 发送任务执行开始事件，触发窗口切换
+	app.EmitEvent(constant.EventTaskExecutionStarted, task)
 
 	// 更新任务状态
 	task.Status = model.TaskStatusRunning
@@ -279,6 +221,9 @@ func (s *MessageService) runAutomationTaskEnhanced(task *model.Task, decompositi
 		s.updateTaskStatus(task, model.TaskStatusFailed, fmt.Sprintf("增强任务执行失败: %s", result.Error))
 		app.EmitEvent(constant.EventNotify, fmt.Sprintf("❌ 增强任务执行失败: %s", result.Error))
 	}
+
+	// 发送任务执行完成事件，触发窗口恢复
+	app.EmitEvent(constant.EventTaskExecutionCompleted, task)
 }
 
 // 发送执行状态更新（发送到浮动窗口）

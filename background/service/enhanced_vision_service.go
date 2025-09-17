@@ -154,17 +154,22 @@ func (evs *EnhancedVisionService) captureAllDisplays() ([]core.DisplayCapture, e
 	}
 
 	// 使用标准的Screenshot接口
-	imageData, result := engine.Screenshot()
+	result := engine.Screenshot()
 	if !result.Success {
 		return nil, fmt.Errorf("failed to capture screen: %s", result.Error)
 	}
 
-	// 获取屏幕尺寸
-	screenSize, sizeResult := engine.GetScreenSize()
+	// 获取屏幕尺寸（使用默认值）
 	width, height := 1920, 1080 // 默认值
-	if sizeResult.Success && screenSize != nil {
-		width = screenSize.Width
-		height = screenSize.Height
+
+	// 从result中获取图像数据
+	var imageData []byte
+	if data, ok := result.Data.(map[string]interface{}); ok {
+		if dataStr, exists := data["data"]; exists {
+			if dataBytes, ok := dataStr.([]byte); ok {
+				imageData = dataBytes
+			}
+		}
 	}
 
 	// 创建单个显示器的capture（作为多显示器的fallback）

@@ -176,23 +176,62 @@ func (s *LLMService) createVisionClient() (*openai.Client, string, error) {
 	return client, config.Model, nil
 }
 
-// cleanMarkdownCodeBlock 清理markdown代码块标记
+// cleanMarkdownCodeBlock 清理markdown代码块标记和其他格式标记
 func cleanMarkdownCodeBlock(content string) string {
 	content = strings.TrimSpace(content)
 
-	// 移除开头的```json或```
-	if strings.HasPrefix(content, "```json") {
-		content = content[7:]
-	} else if strings.HasPrefix(content, "```") {
+	// 移除开头的各种markdown代码块标记
+	patterns := []string{
+		"```json",
+		"```JSON",
+		"```javascript",
+		"```js",
+		"```",
+		"``",
+		"`",
+	}
+
+	for _, pattern := range patterns {
+		if strings.HasPrefix(content, pattern) {
+			content = content[len(pattern):]
+			break
+		}
+	}
+
+	// 移除结尾的各种markdown标记
+	endPatterns := []string{
+		"```",
+		"``",
+		"`",
+	}
+
+	for _, pattern := range endPatterns {
+		if strings.HasSuffix(content, pattern) {
+			content = content[:len(content)-len(pattern)]
+			break
+		}
+	}
+
+	// 移除可能的语言标识符行
+	lines := strings.Split(content, "\n")
+	if len(lines) > 0 {
+		firstLine := strings.TrimSpace(lines[0])
+		// 如果第一行只包含语言标识符，移除它
+		if firstLine == "json" || firstLine == "JSON" || firstLine == "javascript" || firstLine == "js" {
+			lines = lines[1:]
+			content = strings.Join(lines, "\n")
+		}
+	}
+
+	// 移除多余的空白字符
+	content = strings.TrimSpace(content)
+
+	// 移除可能的BOM标记
+	if strings.HasPrefix(content, "\ufeff") {
 		content = content[3:]
 	}
 
-	// 移除结尾的```
-	if strings.HasSuffix(content, "```") {
-		content = content[:len(content)-3]
-	}
-
-	return strings.TrimSpace(content)
+	return content
 }
 
 // retryLLMCall 重试LLM调用的通用方法
@@ -347,9 +386,16 @@ func (s *LLMService) ProcessMessage(conversationID uint64) (*model.Message, *Uni
 
 	slog.Debug("消息处理API返回", "content", resp.Choices[0].Message.Content)
 
-	// 解析JSON响应
-	err = schema.Unmarshal(resp.Choices[0].Message.Content, &result)
+	// 清理markdown标记并解析JSON响应
+	cleanedContent := cleanMarkdownCodeBlock(resp.Choices[0].Message.Content)
+	slog.Debug("清理后的内容", "cleaned_content", cleanedContent)
+
+	err = schema.Unmarshal(cleanedContent, &result)
 	if err != nil {
+		slog.Error("解析消息处理结果失败",
+			"error", err,
+			"raw_content", resp.Choices[0].Message.Content,
+			"cleaned_content", cleanedContent)
 		return nil, nil, fmt.Errorf("解析消息处理结果失败: %v", err)
 	}
 
@@ -589,9 +635,16 @@ func (s *LLMService) DecomposeAutomationTask(conversationHistory []openai.ChatCo
 		return nil, fmt.Errorf("任务分解失败: %v", err)
 	}
 
-	// 最终解析
-	err = schema.Unmarshal(content, &result)
+	// 最终解析 - 再次清理确保万无一失
+	finalCleanedContent := cleanMarkdownCodeBlock(content)
+	slog.Debug("最终清理后的内容", "final_cleaned_content", finalCleanedContent)
+
+	err = schema.Unmarshal(finalCleanedContent, &result)
 	if err != nil {
+		slog.Error("解析任务分解结果失败",
+			"error", err,
+			"original_content", content,
+			"final_cleaned_content", finalCleanedContent)
 		return nil, fmt.Errorf("解析任务分解结果失败: %v", err)
 	}
 

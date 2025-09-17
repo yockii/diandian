@@ -10,4 +10,8 @@ export const EVENT_NAMES = {
   OPERATE_FAILED: "operate-failed",
 
   NOTIFY: "notify",
+
+  // 任务执行相关事件
+  TASK_EXECUTION_STARTED: "task-execution-started",
+  TASK_EXECUTION_COMPLETED: "task-execution-completed",
 } as const

@@ -4,13 +4,20 @@ go 1.24.0
 
 toolchain go1.24.3
 
+replace diandian/background/automation/core => ./background/automation/core
+
+replace diandian/background/automation/hybrid => ./background/automation/hybrid
+
 require (
+	diandian/background/automation/core v0.0.0-00010101000000-000000000000
+	diandian/background/automation/hybrid v0.0.0-00010101000000-000000000000
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-vgo/robotgo v0.110.8
 	github.com/kbinani/screenshot v0.0.0-20250624051815-089614a94018
 	github.com/sashabaranov/go-openai v1.41.2
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.28
 	github.com/yockii/snowflake_ext v0.1.0
+	golang.org/x/sys v0.33.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/gorm v1.31.0
 )
@@ -49,6 +56,7 @@ require (
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/micmonay/keybd_event v1.1.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/otiai10/gosseract v2.2.1+incompatible // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
@@ -80,7 +88,6 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/image v0.27.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect

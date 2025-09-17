@@ -7,7 +7,8 @@ import (
 	"log"
 	"time"
 
-	"diandian/background/automation"
+	"diandian/background/automation/core"
+	"diandian/background/automation/hybrid"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -15,7 +16,7 @@ import (
 // AutomationService 自动化服务
 type AutomationService struct {
 	app    *application.App
-	engine automation.AutomationEngine
+	engine *hybrid.HybridEngine
 
 	// 当前执行状态
 	isRunning     bool
@@ -61,18 +62,23 @@ type AutomationResponse struct {
 
 // NewAutomationService 创建自动化服务
 func NewAutomationService(app *application.App) *AutomationService {
+	engine, err := hybrid.NewHybridEngine()
+	if err != nil {
+		log.Printf("创建混合引擎失败: %v", err)
+		return nil
+	}
+
 	return &AutomationService{
 		app:       app,
-		engine:    automation.NewEngine(),
+		engine:    engine,
 		eventChan: make(chan AutomationEvent, 100),
 	}
 }
 
 // Initialize 初始化自动化服务
 func (s *AutomationService) Initialize() error {
-	result := s.engine.Initialize()
-	if !result.Success {
-		return fmt.Errorf("初始化自动化引擎失败: %s", result.Error)
+	if s.engine == nil {
+		return fmt.Errorf("自动化引擎未初始化")
 	}
 
 	// 启动事件处理协程
@@ -84,15 +90,12 @@ func (s *AutomationService) Initialize() error {
 
 // Cleanup 清理资源
 func (s *AutomationService) Cleanup() {
-	if s.engine != nil {
-		s.engine.Cleanup()
-		s.engine = nil
-	}
 	if s.eventChan != nil {
 		close(s.eventChan)
 		s.eventChan = nil
 	}
 	s.isRunning = false
+	s.engine = nil
 }
 
 // ExecuteAutomationTask 执行自动化任务
@@ -209,26 +212,20 @@ func (s *AutomationService) ExecuteAutomationTask(ctx context.Context, request A
 }
 
 // executeStep 执行单个步骤
-func (s *AutomationService) executeStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) executeStep(step AutomationStep) *core.OperationResult {
 	switch step.Type {
 	case "click":
 		return s.executeClickStep(step)
 	case "type":
 		return s.executeTypeStep(step)
-	case "launch":
-		return s.executeLaunchStep(step)
-	case "file":
-		return s.executeFileStep(step)
+	case "key":
+		return s.executeKeyStep(step)
 	case "screenshot":
 		return s.executeScreenshotStep(step)
 	case "wait":
 		return s.executeWaitStep(step)
-	case "key":
-		return s.executeKeyStep(step)
-	case "clipboard":
-		return s.executeClipboardStep(step)
 	default:
-		return automation.NewErrorResult(
+		return core.NewErrorResult(
 			fmt.Sprintf("不支持的步骤类型: %s", step.Type),
 			fmt.Errorf("unsupported step type"),
 		)
@@ -236,143 +233,55 @@ func (s *AutomationService) executeStep(step AutomationStep) *automation.Operati
 }
 
 // executeClickStep 执行点击步骤
-func (s *AutomationService) executeClickStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) executeClickStep(step AutomationStep) *core.OperationResult {
 	x, ok1 := step.Parameters["x"].(float64)
 	y, ok2 := step.Parameters["y"].(float64)
 	if !ok1 || !ok2 {
-		return automation.NewErrorResult("点击步骤缺少坐标参数", fmt.Errorf("missing coordinates"))
+		return core.NewErrorResult("点击步骤缺少坐标参数", fmt.Errorf("missing coordinates"))
 	}
 
-	button := automation.LeftButton
-	if buttonStr, ok := step.Parameters["button"].(string); ok {
-		switch buttonStr {
-		case "right":
-			button = automation.RightButton
-		case "middle":
-			button = automation.MiddleButton
-		}
-	}
-
-	return s.engine.Click(int(x), int(y), button)
+	return s.engine.Click(int(x), int(y))
 }
 
 // executeTypeStep 执行输入步骤
-func (s *AutomationService) executeTypeStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) executeTypeStep(step AutomationStep) *core.OperationResult {
 	text, ok := step.Parameters["text"].(string)
 	if !ok {
-		return automation.NewErrorResult("输入步骤缺少文本参数", fmt.Errorf("missing text parameter"))
+		return core.NewErrorResult("输入步骤缺少文本参数", fmt.Errorf("missing text parameter"))
 	}
 
 	return s.engine.Type(text)
 }
 
-// executeLaunchStep 执行启动应用步骤
-func (s *AutomationService) executeLaunchStep(step AutomationStep) *automation.OperationResult {
-	app, ok := step.Parameters["app"].(string)
-	if !ok {
-		return automation.NewErrorResult("启动步骤缺少应用参数", fmt.Errorf("missing app parameter"))
-	}
-
-	return s.engine.Launch(app)
-}
-
-// executeFileStep 执行文件操作步骤
-func (s *AutomationService) executeFileStep(step AutomationStep) *automation.OperationResult {
-	operation, ok := step.Parameters["operation"].(string)
-	if !ok {
-		return automation.NewErrorResult("文件步骤缺少操作参数", fmt.Errorf("missing operation parameter"))
-	}
-
-	switch operation {
-	case "create":
-		path, ok1 := step.Parameters["path"].(string)
-		content, ok2 := step.Parameters["content"].(string)
-		if !ok1 || !ok2 {
-			return automation.NewErrorResult("创建文件缺少路径或内容参数", fmt.Errorf("missing path or content"))
-		}
-		return s.engine.CreateFile(path, []byte(content))
-
-	case "delete":
-		path, ok := step.Parameters["path"].(string)
-		if !ok {
-			return automation.NewErrorResult("删除文件缺少路径参数", fmt.Errorf("missing path parameter"))
-		}
-		return s.engine.DeleteFile(path)
-
-	default:
-		return automation.NewErrorResult(
-			fmt.Sprintf("不支持的文件操作: %s", operation),
-			fmt.Errorf("unsupported file operation"),
-		)
-	}
-}
-
 // executeScreenshotStep 执行截屏步骤
-func (s *AutomationService) executeScreenshotStep(step AutomationStep) *automation.OperationResult {
-	path, ok := step.Parameters["path"].(string)
-	if !ok {
-		// 如果没有指定路径，生成默认路径
-		path = fmt.Sprintf("screenshot_%d.png", time.Now().Unix())
-	}
-
-	imageData, result := s.engine.Screenshot()
-	if !result.Success {
-		return result
-	}
-
-	return s.engine.CreateFile(path, imageData)
+func (s *AutomationService) executeScreenshotStep(step AutomationStep) *core.OperationResult {
+	return s.engine.Screenshot()
 }
 
 // executeWaitStep 执行等待步骤
-func (s *AutomationService) executeWaitStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) executeWaitStep(step AutomationStep) *core.OperationResult {
 	duration, ok := step.Parameters["duration"].(float64)
 	if !ok {
 		duration = 1000 // 默认等待1秒
 	}
 
-	return s.engine.Wait(int(duration))
+	time.Sleep(time.Duration(duration) * time.Millisecond)
+	return core.NewSuccessResult(
+		fmt.Sprintf("等待 %d 毫秒", int(duration)),
+		map[string]interface{}{
+			"duration": int(duration),
+		},
+	)
 }
 
 // executeKeyStep 执行按键步骤
-func (s *AutomationService) executeKeyStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) executeKeyStep(step AutomationStep) *core.OperationResult {
 	key, ok := step.Parameters["key"].(string)
 	if !ok {
-		return automation.NewErrorResult("按键步骤缺少按键参数", fmt.Errorf("missing key parameter"))
+		return core.NewErrorResult("按键步骤缺少按键参数", fmt.Errorf("missing key parameter"))
 	}
 
 	return s.engine.KeyPress(key)
-}
-
-// executeClipboardStep 执行剪贴板步骤
-func (s *AutomationService) executeClipboardStep(step AutomationStep) *automation.OperationResult {
-	operation, ok := step.Parameters["operation"].(string)
-	if !ok {
-		return automation.NewErrorResult("剪贴板步骤缺少操作参数", fmt.Errorf("missing operation parameter"))
-	}
-
-	switch operation {
-	case "get":
-		text, result := s.engine.GetClipboard()
-		if result.Success {
-			result.Data = map[string]interface{}{
-				"text": text,
-			}
-		}
-		return result
-
-	case "set":
-		text, ok := step.Parameters["text"].(string)
-		if !ok {
-			return automation.NewErrorResult("设置剪贴板缺少文本参数", fmt.Errorf("missing text parameter"))
-		}
-		return s.engine.SetClipboard(text)
-
-	default:
-		return automation.NewErrorResult(
-			fmt.Sprintf("不支持的剪贴板操作: %s", operation),
-			fmt.Errorf("unsupported clipboard operation"),
-		)
-	}
 }
 
 // sendEvent 发送事件
@@ -406,7 +315,7 @@ func (s *AutomationService) GetStatus() map[string]interface{} {
 }
 
 // GetEngine 获取自动化引擎（用于高级功能）
-func (s *AutomationService) GetEngine() automation.AutomationEngine {
+func (s *AutomationService) GetEngine() *hybrid.HybridEngine {
 	return s.engine
 }
 
@@ -435,6 +344,6 @@ func (s *AutomationService) StopCurrentTask() *AutomationResponse {
 }
 
 // ExecuteStep 公开的步骤执行方法
-func (s *AutomationService) ExecuteStep(step AutomationStep) *automation.OperationResult {
+func (s *AutomationService) ExecuteStep(step AutomationStep) *core.OperationResult {
 	return s.executeStep(step)
 }

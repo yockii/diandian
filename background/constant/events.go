@@ -12,4 +12,8 @@ const (
 	EventOperateFailed     = "operate-failed" // model.Step
 
 	EventNotify = "notify"
+
+	// 任务执行相关事件
+	EventTaskExecutionStarted   = "task-execution-started"
+	EventTaskExecutionCompleted = "task-execution-completed"
 )
